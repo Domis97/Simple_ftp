@@ -10,6 +10,8 @@ public interface StorageService {
 
     void setRootLocation(Path rootLocation);
 
+    void createDirectory(String dirName);
+
     Path getRootLocation();
 
     void init();

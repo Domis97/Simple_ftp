@@ -105,6 +105,14 @@ public class FileSystemStorageService implements StorageService {
         }
     }
 
+    public void createDirectory(String dirName){
+        try {
+            Files.createDirectories(Paths.get((rootLocation.toString()+"\\"+dirName)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void deleteAll() {
         //FileSystemUtils.deleteRecursively(rootLocation.toFile());
