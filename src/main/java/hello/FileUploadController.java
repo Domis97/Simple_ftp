@@ -3,6 +3,7 @@ package hello;
 import hello.storage.StorageFileNotFoundException;
 import hello.storage.StorageProperties;
 import hello.storage.StorageService;
+import hello.storage.UserSpace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +25,9 @@ import java.util.stream.Collectors;
 
 @Controller
 public class FileUploadController {
+    @Autowired
+    private UserSpace userSpace;
+
 
     private StorageService storageService;
     private StorageProperties storageProperties;
@@ -45,7 +49,7 @@ public class FileUploadController {
     }
     private List fileList(Model model) {
 
-        List k = storageService.loadAll().map(path -> {
+        List k = storageService.loadAll(userSpace.getRootLocation()).map(path -> {
             if (!checkIfDirectory(path.toString())) {
                 Object[] notDir = {path.toString(), model.toString()};
                 return MvcUriComponentsBuilder.fromMethodName(FileUploadController.class,
@@ -65,7 +69,7 @@ public class FileUploadController {
     }
 
     private boolean checkIfDirectory(String filename) {
-        Resource file = storageService.loadAsResource(filename);
+        Resource file = storageService.loadAsResource(filename,userSpace.getRootLocation());
         try {
             return file.getFile().isDirectory();
         } catch (IOException e) {
@@ -81,7 +85,7 @@ public class FileUploadController {
 
     @GetMapping("/...")
     public String rev(Model model) {
-        String revS = storageService.getRootLocation().toString();
+        String revS = userSpace.getRootLocation().toString();
         if (storageProperties.getLocation().equals(revS)) {
             return listUploadedFiles(model);
         } else {
@@ -93,7 +97,7 @@ public class FileUploadController {
                 sj.add(s);
             }
 
-            storageService.setRootLocation(Paths.get(sj.toString()));
+            userSpace.setRootLocation(Paths.get(sj.toString()));
             return listUploadedFiles(model);
         }
     }
@@ -101,7 +105,8 @@ public class FileUploadController {
 
     @GetMapping("/dirs/{dir:.+}")
     public String listDirs(@PathVariable String dir, Model model) {
-        storageService.setRootLocation(Paths.get(storageService.getRootLocation().toString() + "\\" + dir));
+        userSpace.setRootLocation(Paths.get(userSpace.getRootLocation().toString() + "\\" + dir));
+        //storageService.setRootLocation(Paths.get(storageService.getRootLocation().toString() + "\\" + dir));
         return listUploadedFiles(model);
     }
 
@@ -109,7 +114,7 @@ public class FileUploadController {
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String filename, Model model) {
 
-        Resource file = storageService.loadAsResource(filename);
+        Resource file = storageService.loadAsResource(filename,userSpace.getRootLocation());
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
 
@@ -119,7 +124,7 @@ public class FileUploadController {
     public String handleDirCreate(@RequestParam("FolderName") String folderName,
                                   RedirectAttributes redirectAttributes) {
 
-        storageService.createDirectory(folderName);
+        storageService.createDirectory(folderName,userSpace.getRootLocation());
 
         redirectAttributes.addFlashAttribute("message",
                 "Stworzono folder" + folderName);
@@ -131,7 +136,7 @@ public class FileUploadController {
     public String handleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes) {
 
-        storageService.store(file);
+        storageService.store(file,userSpace.getRootLocation());
         redirectAttributes.addFlashAttribute("message",
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
 

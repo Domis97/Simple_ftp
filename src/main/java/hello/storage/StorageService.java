@@ -10,19 +10,19 @@ public interface StorageService {
 
     void setRootLocation(Path rootLocation);
 
-    void createDirectory(String dirName);
+    void createDirectory(String dirName,Path rootPath);
 
     Path getRootLocation();
 
     void init();
 
-    void store(MultipartFile file);
+    void store(MultipartFile file, Path rootPath);
 
-    Stream<Path> loadAll();
+    Stream<Path> loadAll(Path rootPath);
 
-    Path load(String filename);
+    Path load(String filename,Path rootPath);
 
-    Resource loadAsResource(String filename);
+    Resource loadAsResource(String filename,Path rootPath);
 
     void deleteAll();
 

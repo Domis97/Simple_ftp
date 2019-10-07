@@ -43,7 +43,7 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public void store(MultipartFile file) {
+    public void store(MultipartFile file, Path rootPath) {
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if (file.isEmpty()) {
@@ -56,7 +56,7 @@ public class FileSystemStorageService implements StorageService {
                                 + filename);
             }
             try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, this.rootLocation.resolve(filename),
+                Files.copy(inputStream, rootPath.resolve(filename),
                     StandardCopyOption.REPLACE_EXISTING);
             }
         }
@@ -66,11 +66,11 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Stream<Path> loadAll() {
+    public Stream<Path> loadAll(Path rootPath) {
         try {
-            return Files.walk(this.rootLocation, 1)
-                .filter(path -> !path.equals(this.rootLocation))
-                .map(this.rootLocation::relativize);
+            return Files.walk(rootPath, 1)
+                .filter(path -> !path.equals(rootPath))
+                .map(rootPath::relativize);
         }
         catch (IOException e) {
             setRootLocation(Paths.get(storageProperties.getLocation()));
@@ -80,15 +80,15 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Path load(String filename) {
-        return rootLocation.resolve(filename);
+    public Path load(String filename,Path rootPath) {
+        return rootPath.resolve(filename);
     }
 
     @Override
-    public Resource loadAsResource(String filename) {
+    public Resource loadAsResource(String filename,Path rootPath) {
         try {
 
-            Path file = load(filename);
+            Path file = load(filename,rootPath);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;
@@ -104,9 +104,9 @@ public class FileSystemStorageService implements StorageService {
         }
     }
 
-    public void createDirectory(String dirName){
+    public void createDirectory(String dirName,Path rootPath){
         try {
-            Files.createDirectories(Paths.get((this.rootLocation.toString()+"\\"+dirName)));
+            Files.createDirectories(Paths.get((rootPath.toString()+"\\"+dirName)));
         } catch (IOException e) {
             e.printStackTrace();
         }
