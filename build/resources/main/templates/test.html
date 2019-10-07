@@ -1,10 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
+
+<html xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Test</title>
+    <title>GoShare</title>
 </head>
-<body style="background-color:deeppink;">
+<body style="background-color:#606B85;">
+
+<div th:if="${message}">
+    <h2 th:text="${message}"/>
+</div>
+<form method="POST" enctype="multipart/form-data" action="/folder">
+    Nazwa foldera: <input type="text" name="FolderName" ><br>
+    <input type="submit" value="Stworz">
+</form>
+<div>
+    <form method="POST" enctype="multipart/form-data" action="/main">
+        <table>
+            <tr><td>File to upload:</td><td><input type="file" name="file" /></td></tr>
+            <tr><td></td><td><input type="submit" value="Upload" /></td></tr>
+        </table>
+    </form>
+</div>
+
+<div>
+    <ul>
+        <li th:each="file : ${files}">
+            <a th:href="${file}" th:text="${file}" />
+        </li>
+    </ul>
+</div>
 
 </body>
 </html>
+
+

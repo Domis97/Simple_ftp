@@ -1,18 +1,20 @@
 package hello.storage;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.nio.file.*;
-import java.util.stream.Stream;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.stream.Stream;
 
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 
@@ -24,17 +26,13 @@ public class FileSystemStorageService implements StorageService {
     }
 
     public Path getRootLocation() {
-        return rootLocation;
+        return this.rootLocation;
     }
 
     private Path rootLocation;
     private StorageProperties storageProperties;
 
-    public StorageProperties getStorageProperties() {
-        return storageProperties;
-    }
-
-    public void setStorageProperties(StorageProperties storageProperties) {
+    private void setStorageProperties(StorageProperties storageProperties) {
         this.storageProperties = storageProperties;
     }
 
@@ -75,6 +73,7 @@ public class FileSystemStorageService implements StorageService {
                 .map(this.rootLocation::relativize);
         }
         catch (IOException e) {
+            setRootLocation(Paths.get(storageProperties.getLocation()));
             throw new StorageException("Failed to read stored files", e);
         }
 
@@ -107,7 +106,7 @@ public class FileSystemStorageService implements StorageService {
 
     public void createDirectory(String dirName){
         try {
-            Files.createDirectories(Paths.get((rootLocation.toString()+"\\"+dirName)));
+            Files.createDirectories(Paths.get((this.rootLocation.toString()+"\\"+dirName)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,8 +120,8 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public void init() {
         try {
-            if(!Files.exists(rootLocation, NOFOLLOW_LINKS))
-            Files.createDirectories(rootLocation);
+            if(!Files.exists(this.rootLocation, NOFOLLOW_LINKS))
+            Files.createDirectories(this.rootLocation);
         }
         catch (IOException e) {
             throw new StorageException("Could not initialize storage", e);
