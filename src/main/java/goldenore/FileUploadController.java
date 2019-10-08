@@ -1,9 +1,9 @@
-package hello;
+package goldenore;
 
-import hello.storage.StorageFileNotFoundException;
-import hello.storage.StorageProperties;
-import hello.storage.StorageService;
-import hello.storage.UserSpace;
+import goldenore.storage.StorageFileNotFoundException;
+import goldenore.storage.StorageProperties;
+import goldenore.storage.StorageService;
+import goldenore.storage.UserSpace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Controller
 public class FileUploadController {
+
     @Autowired
     private UserSpace userSpace;
 
@@ -40,7 +41,7 @@ public class FileUploadController {
     }
 
 
-    @GetMapping("/")
+    @GetMapping("/main")
     public String listUploadedFiles(Model model) {
 
         model.addAttribute("files", fileList(model));
@@ -106,7 +107,6 @@ public class FileUploadController {
     @GetMapping("/dirs/{dir:.+}")
     public String listDirs(@PathVariable String dir, Model model) {
         userSpace.setRootLocation(Paths.get(userSpace.getRootLocation().toString() + "\\" + dir));
-        //storageService.setRootLocation(Paths.get(storageService.getRootLocation().toString() + "\\" + dir));
         return listUploadedFiles(model);
     }
 
@@ -129,10 +129,10 @@ public class FileUploadController {
         redirectAttributes.addFlashAttribute("message",
                 "Stworzono folder" + folderName);
 
-        return "redirect:/";
+        return "redirect:/main";
     }
 
-    @PostMapping("/")
+    @PostMapping("/main")
     public String handleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes) {
 
@@ -140,7 +140,7 @@ public class FileUploadController {
         redirectAttributes.addFlashAttribute("message",
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
 
-        return "redirect:/";
+        return "redirect:/main";
     }
 
     @ExceptionHandler(StorageFileNotFoundException.class)

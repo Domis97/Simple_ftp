@@ -1,4 +1,4 @@
-package hello.storage;
+package goldenore.storage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -110,11 +110,6 @@ public class FileSystemStorageService implements StorageService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void deleteAll() {
-        //FileSystemUtils.deleteRecursively(rootLocation.toFile());
     }
 
     @Override

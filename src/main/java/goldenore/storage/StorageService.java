@@ -1,4 +1,4 @@
-package hello.storage;
+package goldenore.storage;
 
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +24,6 @@ public interface StorageService {
 
     Resource loadAsResource(String filename,Path rootPath);
 
-    void deleteAll();
 
 
 }
